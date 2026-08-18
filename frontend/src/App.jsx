@@ -23,7 +23,8 @@ export default function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/book" element={<BookingPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<LoginPage />} />
+<Route path="/status" element={<StatusPage />} />
+<Route path="/login" element={<LoginPage />} />
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardLayout />}>

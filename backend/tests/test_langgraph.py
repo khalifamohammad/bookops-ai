@@ -30,3 +30,14 @@ def test_langchain_upsell_tool():
     )
 
     assert result == "Add a wash and styling finish"
+
+
+def test_langchain_upsell_uses_customer_notes():
+    result = recommend_upsell.invoke(
+        {
+            "service_name": "Classic Haircut",
+            "customer_notes": "I have an important wedding event tonight",
+        }
+    )
+
+    assert "styling" in result.lower()

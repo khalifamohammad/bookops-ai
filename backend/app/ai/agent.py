@@ -37,20 +37,34 @@ UPSELLS = {
 # ============================================================
 
 @tool
-def recommend_upsell(service_name: str) -> str:
-    """Return an appropriate upsell suggestion for a BookOps service.
-
-    Returns an empty string when no matching suggestion exists.
+def recommend_upsell(
+    service_name: str,
+    customer_notes: str = "",
+) -> str:
+    """Suggest an optional service using the booked service
+    and the customer's notes.
     """
-    service_name = service_name.lower()
 
+    service = service_name.lower()
+    notes = customer_notes.lower()
+    context = f"{service} {notes}"
+
+    # Suggestions driven by customer notes first
+    if any(word in notes for word in {"dry", "damaged", "damage"}):
+        return "Add a hydrating or repair hair treatment"
+
+    if any(word in notes for word in {"event", "wedding", "party", "photos"}):
+        return "Add a styling finish for the event"
+
+    if any(word in notes for word in {"sensitive", "irritated"}):
+        return "Add a gentle-care treatment"
+
+    # Fall back to service-based suggestions
     for keyword, suggestion in UPSELLS.items():
-        if keyword in service_name:
+        if keyword in context:
             return suggestion
 
     return ""
-
-
 # ============================================================
 # Booking analysis LangGraph
 # ============================================================
@@ -100,7 +114,10 @@ def create_upsell(state: BookingAnalysisState) -> dict:
     booking = state["booking"]
 
     suggestion = recommend_upsell.invoke(
-        {"service_name": booking.service.name}
+        {
+            "service_name": booking.service.name,
+            "customer_notes": booking.customer_notes or "",
+        }
     )
 
     return {
