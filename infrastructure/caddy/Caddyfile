@@ -1,0 +1,17 @@
+{
+  email admin@example.com
+}
+
+booking.example.com {
+  encode gzip zstd
+  reverse_proxy frontend:80
+}
+
+api.booking.example.com {
+  encode gzip zstd
+  reverse_proxy api:8000
+}
+
+status.booking.example.com {
+  reverse_proxy uptime-kuma:3001
+}

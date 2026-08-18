@@ -1,0 +1,8 @@
+import { useEffect, useState } from 'react';
+import { Banknote, CalendarDays, CircleX, Trophy } from 'lucide-react';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { api } from '../api';
+import Loading from '../components/Loading';
+import MetricCard from '../components/MetricCard';
+
+export default function StatsPage(){const[stats,setStats]=useState(null);const[trend,setTrend]=useState([]);const[error,setError]=useState('');useEffect(()=>{Promise.all([api('/stats/overview'),api('/stats/bookings?days=14')]).then(([s,t])=>{setStats(s);setTrend(t.map(x=>({...x,label:x.date.slice(5)})));}).catch(e=>setError(e.message));},[]);if(!stats&&!error)return<Loading/>;return <><div className="page-head"><div><span>Performance</span><h1>Statistics</h1></div></div>{error&&<div className="alert error">{error}</div>}{stats&&<><div className="metric-grid"><MetricCard label="Bookings" value={stats.total_bookings} icon={CalendarDays}/><MetricCard label="Completed income" value={`₪${stats.completed_income.toFixed(0)}`} icon={Banknote}/><MetricCard label="Cancellations" value={stats.cancelled} icon={CircleX}/><MetricCard label="Top service" value={stats.most_requested_service||'No data'} icon={Trophy}/></div><section className="card panel chart-panel"><div className="panel-head"><div><span>Last 14 days</span><h2>Bookings per day</h2></div></div><ResponsiveContainer width="100%" height={340}><LineChart data={trend}><CartesianGrid strokeDasharray="3 3" vertical={false}/><XAxis dataKey="label"/><YAxis allowDecimals={false}/><Tooltip/><Line type="monotone" dataKey="count" stroke="currentColor" strokeWidth={3} dot={{r:4}}/></LineChart></ResponsiveContainer></section></>}</>}
